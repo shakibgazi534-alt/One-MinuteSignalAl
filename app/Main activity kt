@@ -1,1 +1,37 @@
 
+package com.oneminute.signalai.utils
+
+import android.os.CountDownTimer
+
+class TimerManager(
+    private val onTick: (secondsLeft: Int) -> Unit,
+    private val onFinish: () -> Unit
+) {
+    private var countDownTimer: CountDownTimer? = null
+    var isRunning: Boolean = false
+        private set
+
+    fun startTimer(durationSeconds: Long = 60) {
+        stopTimer()
+        isRunning = true
+        
+        countDownTimer = object : CountDownTimer(durationSeconds * 1000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val secondsLeft = (millisUntilFinished / 1000).toInt()
+                onTick(secondsLeft)
+            }
+
+            override fun onFinish() {
+                isRunning = false
+                onTick(0)
+                onFinish()
+            }
+        }.start()
+    }
+
+    fun stopTimer() {
+        countDownTimer?.cancel()
+        countDownTimer = null
+        isRunning = false
+    }
+}
